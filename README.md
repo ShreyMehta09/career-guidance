@@ -173,6 +173,4 @@ Gemini has rate limits on their API. If you exceed these limits:
 2. Wait a while before trying again
 3. Consider upgrading your Gemini plan for higher limits
 
-## License
 
-[MIT](LICENSE)
