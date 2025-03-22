@@ -4,7 +4,7 @@ import User from '@/models/User';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password, role } = await request.json();
 
     // Connect to MongoDB
     try {
@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     const newUser = new User({
       name,
       email,
-      password
+      password,
+      role: role || 'student' // Default to student if no role provided
     });
     
     await newUser.save();
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
     const userWithoutPassword = {
       id: newUser._id,
       name: newUser.name,
-      email: newUser.email
+      email: newUser.email,
+      role: newUser.role
     };
     
     return NextResponse.json({ 

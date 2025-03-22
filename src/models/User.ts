@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  role: string;
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -24,6 +25,12 @@ const UserSchema: Schema = new Schema({
     type: String, 
     required: true,
     minlength: 6
+  },
+  role: {
+    type: String,
+    enum: ['teacher', 'student'],
+    default: 'student',
+    required: true
   }
 }, { timestamps: true });
 

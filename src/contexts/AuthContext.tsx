@@ -8,7 +8,7 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
-  register: (name: string, email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, role?: string) => Promise<User>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

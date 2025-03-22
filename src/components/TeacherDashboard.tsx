@@ -18,11 +18,11 @@ interface Appointment {
   topic: string;
 }
 
-interface CounselorDashboardProps {
+interface TeacherDashboardProps {
   userName: string;
 }
 
-export default function CounselorDashboard({ userName }: CounselorDashboardProps) {
+export default function TeacherDashboard({ userName }: TeacherDashboardProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
@@ -159,7 +159,7 @@ export default function CounselorDashboard({ userName }: CounselorDashboardProps
               Schedule Appointment
             </Link>
             <Link href="/resources" className="block p-3 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100">
-              Career Resources
+              Class Resources
             </Link>
             <Link href="/reports" className="block p-3 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100">
               Generate Reports

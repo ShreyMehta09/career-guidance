@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     // Set different system prompts based on the type of request
     switch (type) {
       case 'career-assessment':
-        systemPrompt = `You are an expert career counselor with deep knowledge of various professions, 
+        systemPrompt = `You are an expert teacher and education advisor with deep knowledge of various professions, 
         required skills, and job market trends. Based on the user's interests, skills, and preferences, 
         suggest 3-5 suitable career paths with brief explanations of why they might be a good fit.`;
         break;
