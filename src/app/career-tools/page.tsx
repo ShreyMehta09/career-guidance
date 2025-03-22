@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getCareerAssessmentResults } from '@/utils/api';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface TestQuestion {
   id: string;
@@ -143,8 +144,14 @@ const skillsInterestsSurvey: TestQuestion[] = [
     type: 'text',
   }
 ];
-
-export default function CareerTools() {
+export default function CareerToolsPage() {
+  return (
+    <ProtectedRoute>
+      <CareerTools />
+    </ProtectedRoute>
+  );
+}
+function CareerTools() {
   const [activeTest, setActiveTest] = useState<'none' | 'aptitude' | 'personality' | 'skills'>('none');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
@@ -289,7 +296,7 @@ export default function CareerTools() {
               <button
                 key={index}
                 onClick={() => handleMultipleChoiceResponse(option)}
-                className="w-full text-left p-4 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+                className="w-full text-left p-4 text-black rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50"
               >
                 {option}
               </button>

@@ -110,8 +110,8 @@ export default function Explore() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900">Explore Career Paths</h1>
-          <p className="mt-2 text-gray-600">Discover various career opportunities and learn about their requirements</p>
+          <h1 className="text-3xl font-bold text-gray-900">Explore Courses</h1>
+          <p className="mt-2 text-gray-600">Discover various courses and learn enroll in them to know more</p>
         </div>
 
         {/* Search and Filter Section */}
@@ -119,17 +119,17 @@ export default function Explore() {
           <div className="relative flex-1 max-w-lg">
             <input
               type="text"
-              placeholder="Search careers..."
+              placeholder="Search courses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border text-gray-500 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="flex space-x-4">
             <select
               value={selectedField}
               onChange={(e) => setSelectedField(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border text-gray-500 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Fields</option>
               <option value="technology">Technology</option>
@@ -189,7 +189,7 @@ export default function Explore() {
 
         {filteredCareers.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No careers found matching your search criteria.</p>
+            <p className="text-gray-500">No courses found matching your search criteria.</p>
           </div>
         )}
 

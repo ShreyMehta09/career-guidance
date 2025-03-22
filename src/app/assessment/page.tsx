@@ -156,7 +156,7 @@ export default function Assessment() {
                       <select
                         value={formData.education}
                         onChange={(e) => setFormData(prev => ({ ...prev, education: e.target.value }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full text-gray-700 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
                         <option className="text-gray-500" value="">Select education level</option>
                         <option className="text-gray-500" value="high-school">High School</option>
@@ -173,7 +173,7 @@ export default function Assessment() {
                       <select
                         value={formData.workStyle}
                         onChange={(e) => setFormData(prev => ({ ...prev, workStyle: e.target.value }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full text-gray-700 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
                         <option className="text-gray-500" value="">Select work style</option>
                         <option className="text-gray-500" value="remote">Remote</option>
@@ -190,7 +190,7 @@ export default function Assessment() {
                       <textarea
                         value={formData.goals}
                         onChange={(e) => setFormData(prev => ({ ...prev, goals: e.target.value }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         rows={4}
                         placeholder="What are your career goals and aspirations?"
                       />

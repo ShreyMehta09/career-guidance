@@ -31,23 +31,23 @@ export default function CounselorDashboard({ userName }: CounselorDashboardProps
     setStudents([
       {
         id: 1,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
+        name: 'Rishi',
+        email: 'Rishi@example.com',
         lastActive: '2024-03-15',
-        progress: 75,
+        progress: 100,
         nextMeeting: '2024-03-20'
       },
       {
         id: 2,
-        name: 'Jane Smith',
-        email: 'jane.smith@example.com',
+        name: 'Shrey Mehta',
+        email: 'shreymehta@example.com',
         lastActive: '2024-03-14',
-        progress: 45
+        progress: 60
       },
       {
         id: 3,
-        name: 'Mike Johnson',
-        email: 'mike.j@example.com',
+        name: 'Yash',
+        email: 'yash@example.com',
         lastActive: '2024-03-13',
         progress: 90,
         nextMeeting: '2024-03-22'
@@ -57,14 +57,14 @@ export default function CounselorDashboard({ userName }: CounselorDashboardProps
     setAppointments([
       {
         id: 1,
-        studentName: 'John Doe',
+        studentName: 'Rishi',
         date: '2024-03-20',
         time: '10:00 AM',
         topic: 'Career Path Discussion'
       },
       {
         id: 2,
-        studentName: 'Mike Johnson',
+        studentName: 'Shrey',
         date: '2024-03-22',
         time: '2:00 PM',
         topic: 'Resume Review'

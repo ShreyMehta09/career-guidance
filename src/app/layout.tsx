@@ -7,7 +7,7 @@ import Navigation from '@/components/Navigation';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Career Guidance Platform",
+  title: "Career Guidance ",
   description: "AI-powered career counseling and guidance platform for schools",
 };
 

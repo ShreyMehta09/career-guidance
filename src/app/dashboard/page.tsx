@@ -35,13 +35,7 @@ export default function Dashboard() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {user && (
-            user.role === 'student' ? (
-              <StudentDashboard userName={user.name} />
-            ) : (
-              <CounselorDashboard userName={user.name} />
-            )
-          )}
+        {user && <StudentDashboard userName={user.name} />}
         </main>
       </div>
     </ProtectedRoute>

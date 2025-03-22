@@ -18,13 +18,13 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold text-blue-600">
-              CareerGuide
+              CareerGuidance
             </Link>
           </div>
           
           <div className="flex items-center space-x-6">
             <Link href="/explore" className="text-gray-700 hover:text-blue-600">
-              Explore Careers
+              Explore Courses
             </Link>
             <Link href="/assessment" className="text-gray-700 hover:text-blue-600">
               Career Assessment
