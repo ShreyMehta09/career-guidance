@@ -10,6 +10,7 @@ export default function VerifyEmail() {
   const [email, setEmail] = useState('');
   const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [resendMessage, setResendMessage] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -23,28 +24,50 @@ export default function VerifyEmail() {
       }
 
       try {
-        const response = await fetch(`/api/auth/verify-email?token=${token}`);
+        console.log(`Verifying token: ${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
+        
+        const response = await fetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`);
         const data = await response.json();
 
         if (response.ok) {
           setStatus('success');
-          setMessage('Email verified successfully! You can now log in.');
+          setMessage(data.message || 'Email verified successfully! You can now log in.');
           // Redirect to login page after 3 seconds
           setTimeout(() => {
             router.push('/login');
           }, 3000);
         } else {
-          setStatus('error');
-          setMessage(data.error || 'Failed to verify email. Please try again.');
+          // If already verified, treat as success
+          if (data.message && data.message.includes('already verified')) {
+            setStatus('success');
+            setMessage(data.message || 'Email already verified! You can now log in.');
+            // Redirect to login page after 3 seconds
+            setTimeout(() => {
+              router.push('/login');
+            }, 3000);
+          } else {
+            setStatus('error');
+            setMessage(data.error || 'Failed to verify email. Please try again.');
+          }
         }
       } catch (error) {
-        setStatus('error');
-        setMessage('An error occurred while verifying your email. Please try again.');
+        console.error('Error verifying email:', error);
+        
+        // Retry up to 3 times with a delay
+        if (retryCount < 3) {
+          setMessage(`Verification attempt failed. Retrying (${retryCount + 1}/3)...`);
+          setTimeout(() => {
+            setRetryCount(retryCount + 1);
+          }, 2000);
+        } else {
+          setStatus('error');
+          setMessage('An error occurred while verifying your email. Please try again.');
+        }
       }
     };
 
     verifyEmail();
-  }, [token, router]);
+  }, [token, router, retryCount]);
 
   const handleResendVerification = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +103,7 @@ export default function VerifyEmail() {
       }
     } catch (error) {
       setResendStatus('error');
-      setResendMessage('An error occurred. Please try again later.');
+      setResendMessage('An error occurred while resending verification email. Please try again later.');
     }
   };
 
@@ -98,6 +121,11 @@ export default function VerifyEmail() {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Verifying your email...</p>
+              {retryCount > 0 && (
+                <p className="mt-2 text-sm text-gray-500">
+                  Retry attempt {retryCount}/3
+                </p>
+              )}
             </div>
           )}
 
@@ -122,6 +150,14 @@ export default function VerifyEmail() {
               <p className="mt-2 text-sm text-gray-600">
                 Redirecting to login page...
               </p>
+              <div className="mt-4">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Go to Login Now
+                </Link>
+              </div>
             </div>
           )}
 

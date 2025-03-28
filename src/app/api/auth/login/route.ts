@@ -3,6 +3,7 @@ import connectDB from '@/utils/mongodb';
 import User from '@/models/User';
 import { generateVerificationToken, sendVerificationEmail } from '@/utils/emailService';
 import { getUserVerificationStatus, updateUserVerificationFields } from '@/utils/directMongoDB';
+import mongoose from 'mongoose';
 
 export async function POST(request: Request) {
   try {
@@ -32,66 +33,112 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
-    
-    // Get verification status directly from MongoDB
-    const verificationStatus = await getUserVerificationStatus(email);
-    console.log('Verification status from direct MongoDB:', verificationStatus);
-    
-    // Check if email is verified using direct MongoDB check
-    const isVerified = verificationStatus && verificationStatus.isVerified;
-    
-    if (!isVerified) {
-      console.log('Unverified user attempted to login:', { email: user.email });
-      
-      // If token is expired, generate a new one and resend email
-      if (user.verificationTokenExpires && user.verificationTokenExpires < new Date()) {
-        console.log('Verification token expired, generating new one...');
-        const newToken = generateVerificationToken();
-        const newExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        
-        // Update with direct MongoDB access
-        await updateUserVerificationFields(user._id.toString(), {
-          verificationToken: newToken,
-          verificationTokenExpires: newExpiry
-        });
-        
-        // Resend verification email
-        console.log('Resending verification email...');
-        await sendVerificationEmail(email, newToken);
-      }
-      
-      return NextResponse.json({ 
-        error: 'Please verify your email before logging in. Check your inbox for the verification link.',
-        needsVerification: true
-      }, { status: 401 });
-    }
-    
-    // Check password
+
+    // First, check password since verification requires authenticated user
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
     
-    // Update Mongoose user object with verified status from MongoDB
-    if (isVerified && !user.isVerified) {
-      console.log('Updating Mongoose user object with verified status');
-      user.isVerified = true;
-      await user.save();
+    console.log('Initial isVerified from Mongoose:', user.isVerified);
+    
+    // Get verification status directly from MongoDB with raw query
+    try {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error('Database not connected');
+      }
+      
+      const usersCollection = db.collection('users');
+      const userFromDB = await usersCollection.findOne({ email: email.toLowerCase() });
+      
+      console.log('User verification status from direct MongoDB query:', {
+        email: email,
+        isVerified: userFromDB?.isVerified
+      });
+      
+      // Force isVerified to true if it's true in the database
+      if (userFromDB && userFromDB.isVerified === true) {
+        // Update the user document
+        user.isVerified = true;
+        await user.save();
+        console.log('Updated user isVerified in Mongoose to true');
+        
+        // Create a user object without the password to return
+        const userWithoutPassword = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isVerified: true
+        };
+        
+        return NextResponse.json({ 
+          message: 'Login successful', 
+          user: userWithoutPassword 
+        });
+      }
+    } catch (error) {
+      console.error('Error checking direct verification status:', error);
+      // Continue with regular flow if this fails
     }
     
-    // Create a user object without the password to return
-    const userWithoutPassword = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isVerified: true // Force isVerified to true if we got here
-    };
+    // If isVerified is true in Mongoose, allow login
+    if (user.isVerified) {
+      console.log('User is verified in Mongoose');
+      
+      const userWithoutPassword = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: true
+      };
+      
+      return NextResponse.json({ 
+        message: 'Login successful', 
+        user: userWithoutPassword 
+      });
+    }
+    
+    // If we get here, user is not verified
+    console.log('User is not verified in either Mongoose or direct MongoDB');
+    
+    // If token is expired or doesn't exist, generate a new one and resend email
+    if (!user.verificationToken || 
+        !user.verificationTokenExpires || 
+        user.verificationTokenExpires < new Date()) {
+      console.log('Verification token expired or missing, generating new one...');
+      const newToken = generateVerificationToken();
+      const newExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      
+      // Update with Mongoose
+      user.verificationToken = newToken;
+      user.verificationTokenExpires = newExpiry;
+      await user.save();
+      
+      // Also update with direct MongoDB for redundancy
+      try {
+        await updateUserVerificationFields(
+          user._id.toString(),
+          {
+            verificationToken: newToken,
+            verificationTokenExpires: newExpiry
+          }
+        );
+      } catch (error) {
+        console.error('Error updating with direct MongoDB (non-critical):', error);
+      }
+      
+      // Resend verification email
+      console.log('Resending verification email...');
+      await sendVerificationEmail(email, newToken);
+    }
     
     return NextResponse.json({ 
-      message: 'Login successful', 
-      user: userWithoutPassword 
-    });
+      error: 'Please verify your email before logging in. Check your inbox for the verification link.',
+      needsVerification: true
+    }, { status: 401 });
   } catch (error: any) {
     console.error('Login error:', error);
     

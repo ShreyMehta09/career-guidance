@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import User from '@/models/User';
 import { getUserByVerificationToken, updateUserVerificationFields } from '@/utils/directMongoDB';
+import mongoose from 'mongoose';
 
 export async function GET(request: Request) {
   try {
@@ -24,51 +25,67 @@ export async function GET(request: Request) {
       }, { status: 503 });
     }
 
-    // Get user directly from MongoDB
-    const userFromDB = await getUserByVerificationToken(token);
+    // First try Mongoose lookup - most reliable
+    console.log('Trying to find user with Mongoose');
+    const user = await User.findOne({ verificationToken: token });
     
-    console.log('User found in MongoDB:', userFromDB ? {
-      id: userFromDB._id,
-      email: userFromDB.email,
-      isVerified: userFromDB.isVerified,
-      hasToken: !!userFromDB.verificationToken,
-      tokenExpires: userFromDB.verificationTokenExpires
-    } : 'No user found');
-
-    if (!userFromDB) {
+    if (!user) {
+      console.log('No user found with token');
       return NextResponse.json({ 
         error: 'Invalid verification token. Please request a new verification email.' 
       }, { status: 400 });
     }
 
+    console.log('Found user:', {
+      id: user._id,
+      email: user.email,
+      isVerified: user.isVerified
+    });
+
+    // Check if already verified
+    if (user.isVerified) {
+      console.log('User already verified');
+      return NextResponse.json({ 
+        message: 'Your email is already verified. You can now log in.' 
+      });
+    }
+
     // Check if token is expired
     const now = new Date();
-    if (userFromDB.verificationTokenExpires && new Date(userFromDB.verificationTokenExpires) < now) {
-      console.log('Token expired on:', userFromDB.verificationTokenExpires);
+    if (user.verificationTokenExpires && user.verificationTokenExpires < now) {
+      console.log('Token expired on:', user.verificationTokenExpires);
       return NextResponse.json({ 
         error: 'Verification token has expired. Please request a new verification email.' 
       }, { status: 400 });
     }
 
-    // Update user verification status directly with MongoDB
+    // Update user verification status
     try {
-      const updated = await updateUserVerificationFields(
-        userFromDB._id.toString(),
-        {
-          isVerified: true,
-          verificationToken: null,
-          verificationTokenExpires: null
-        }
-      );
+      // Update with Mongoose
+      user.isVerified = true;
+      user.verificationToken = undefined;
+      user.verificationTokenExpires = undefined;
+      await user.save();
       
-      if (!updated) {
-        console.error('Failed to update user verification status');
-        return NextResponse.json({ 
-          error: 'Error verifying email. Please try again.' 
-        }, { status: 500 });
+      console.log('User verified with Mongoose');
+      
+      // Also try with direct MongoDB for double safety
+      try {
+        await updateUserVerificationFields(
+          user._id.toString(),
+          {
+            isVerified: true,
+            verificationToken: null,
+            verificationTokenExpires: null
+          }
+        );
+        console.log('Also updated with direct MongoDB');
+      } catch (error) {
+        console.error('Error updating with direct MongoDB (non-critical):', error);
+        // Non-critical, continue anyway
       }
       
-      console.log('User email verified successfully:', userFromDB.email);
+      console.log('User email verified successfully:', user.email);
       return NextResponse.json({ 
         message: 'Email verified successfully' 
       });

@@ -1,34 +1,34 @@
 import { MongoClient, ObjectId } from 'mongodb';
 
-// Get the database name from connection string
-function getDatabaseName(uri: string): string {
-  try {
-    // Extract database name from URI
-    const dbNameMatch = uri.match(/\/([^/?]+)(\?|$)/);
-    return dbNameMatch ? dbNameMatch[1] : 'test';
-  } catch (error) {
-    console.error('Error extracting database name:', error);
-    return 'test';
-  }
-}
-
-// Utility to directly update user verification fields
-export async function updateUserVerificationFields(userId: string, verificationData: any) {
+// Get MongoDB client and database
+async function getMongoConnection() {
   const uri = process.env.MONGODB_URI;
   
   if (!uri) {
     throw new Error('MongoDB URI is not defined');
   }
   
-  const client = new MongoClient(uri);
+  try {
+    const client = new MongoClient(uri);
+    await client.connect();
+    const database = client.db(); // Uses the database from the connection string
+    return { client, database };
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+}
+
+// Utility to directly update user verification fields
+export async function updateUserVerificationFields(userId: string, verificationData: any) {
+  let client;
   
   try {
-    await client.connect();
-    const databaseName = getDatabaseName(uri);
-    console.log(`Using database: ${databaseName}`);
+    const { client: mongoClient, database } = await getMongoConnection();
+    client = mongoClient;
     
-    const database = client.db(databaseName);
     const usersCollection = database.collection('users');
+    console.log(`Updating verification fields for user: ${userId}`);
     
     // Update the user
     const result = await usersCollection.updateOne(
@@ -38,55 +38,75 @@ export async function updateUserVerificationFields(userId: string, verificationD
     
     console.log(`Updated user verification fields: ${result.modifiedCount} document(s) modified`);
     return result.modifiedCount > 0;
+  } catch (error) {
+    console.error('Error updating user verification fields:', error);
+    return false;
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
 
 // Utility to get a user by verification token
 export async function getUserByVerificationToken(token: string) {
-  const uri = process.env.MONGODB_URI;
-  
-  if (!uri) {
-    throw new Error('MongoDB URI is not defined');
-  }
-  
-  const client = new MongoClient(uri);
+  let client;
   
   try {
-    await client.connect();
-    const databaseName = getDatabaseName(uri);
-    console.log(`Using database: ${databaseName}`);
+    const { client: mongoClient, database } = await getMongoConnection();
+    client = mongoClient;
     
-    const database = client.db(databaseName);
     const usersCollection = database.collection('users');
+    console.log(`Looking for user with token: ${token?.substring(0, 10)}...${token?.substring(token.length - 10)}`);
     
-    // Find the user
+    // Debug: Find any users with verification tokens
+    const usersWithTokens = await usersCollection.find(
+      { verificationToken: { $exists: true, $ne: null } }
+    ).toArray();
+    
+    console.log(`Found ${usersWithTokens.length} users with verification tokens`);
+    
+    for (const user of usersWithTokens) {
+      const storedToken = user.verificationToken;
+      if (typeof storedToken === 'string' && storedToken.length > 0) {
+        console.log(`User ${user.email} has token: ${storedToken.substring(0, 10)}...${storedToken.substring(storedToken.length - 10)}`);
+        
+        // Try exact match
+        if (storedToken === token) {
+          console.log(`Found exact match for user ${user.email}`);
+          return user;
+        }
+      }
+    }
+    
+    // If we get here, we didn't find an exact match
+    console.log(`No exact token match found. Trying regex search...`);
+    
+    // Find user with regex (fuzzy) match as fallback
     const user = await usersCollection.findOne({ verificationToken: token });
-    console.log(`Found user with token: ${user ? 'yes' : 'no'}`);
+    console.log(`Exact token query result: ${user ? 'found user' : 'no user found'}`);
+    
     return user;
+  } catch (error) {
+    console.error('Error finding user by token:', error);
+    return null;
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
 
 // Utility to get user verification status by email
 export async function getUserVerificationStatus(email: string) {
-  const uri = process.env.MONGODB_URI;
-  
-  if (!uri) {
-    throw new Error('MongoDB URI is not defined');
-  }
-  
-  const client = new MongoClient(uri);
+  let client;
   
   try {
-    await client.connect();
-    const databaseName = getDatabaseName(uri);
-    console.log(`Getting verification status for ${email} from database: ${databaseName}`);
+    const { client: mongoClient, database } = await getMongoConnection();
+    client = mongoClient;
     
-    const database = client.db(databaseName);
     const usersCollection = database.collection('users');
+    console.log(`Getting verification status for ${email}`);
     
     // Find the user and get just the verification status
     const user = await usersCollection.findOne(
@@ -96,7 +116,12 @@ export async function getUserVerificationStatus(email: string) {
     
     console.log(`User verification status for ${email}:`, user ? user.isVerified : 'user not found');
     return user ? { isVerified: user.isVerified, email: user.email } : null;
+  } catch (error) {
+    console.error('Error getting user verification status:', error);
+    return null;
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 } 

@@ -441,7 +441,7 @@ export default function TeacherDashboard({ userName }: TeacherDashboardProps) {
                             name="courseName"
                             value={courseName}
                             onChange={(e) => setCourseName(e.target.value)}
-                            className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            className="mt-1 text-gray-800 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             required
                           />
                         </div>
@@ -456,7 +456,7 @@ export default function TeacherDashboard({ userName }: TeacherDashboardProps) {
                             name="courseId"
                             value={courseId}
                             onChange={(e) => setCourseId(e.target.value)}
-                            className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            className="mt-1 text-gray-800 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             required
                           />
                         </div>
@@ -472,7 +472,7 @@ export default function TeacherDashboard({ userName }: TeacherDashboardProps) {
                             min="1"
                             value={coursePoints}
                             onChange={(e) => setCoursePoints(parseInt(e.target.value) || 0)}
-                            className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            className="mt-1 text-gray-800 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             required
                           />
                         </div>
@@ -487,7 +487,7 @@ export default function TeacherDashboard({ userName }: TeacherDashboardProps) {
                             rows={3}
                             value={courseDescription}
                             onChange={(e) => setCourseDescription(e.target.value)}
-                            className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            className="mt-1 text-gray-800 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             required
                           />
                         </div>

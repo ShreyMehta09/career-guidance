@@ -173,4 +173,43 @@ Gemini has rate limits on their API. If you exceed these limits:
 2. Wait a while before trying again
 3. Consider upgrading your Gemini plan for higher limits
 
+# Course Management System
+
+## Email Verification Troubleshooting
+
+To help users who encounter verification issues, the following tools have been implemented:
+
+### For Users:
+
+1. **Force Verification Page**  
+   URL: `/force-verify`  
+   This page allows users to manually force their account to be verified by providing their email and password. Use this as a last resort if normal email verification fails.
+
+2. **Resend Verification Email**  
+   A "Resend verification email" option is available on the login page if a user tries to login without verifying their email.
+
+### For Administrators:
+
+1. **Token Debugging Tool**  
+   URL: `/admin/debug-token`  
+   This tool helps administrators diagnose issues with verification tokens by comparing a token against the database and showing potential matches using exact, substring, and pattern matching.
+
+2. **Debug API Endpoint**  
+   Endpoint: `/api/auth/debug-token`  
+   This API endpoint accepts a token and returns detailed information about possible matching tokens in the database.
+
+## Email Verification Process
+
+1. User registers with email and password
+2. System sends verification email with unique token
+3. User clicks verification link in the email
+4. Account is verified and user can log in
+
+If the process fails, users can:
+1. Check their spam folder for the verification email
+2. Request a new verification email from the login page
+3. As a last resort, use the force verification page
+
+All verification actions are logged for debugging purposes.
+
 

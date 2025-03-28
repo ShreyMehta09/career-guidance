@@ -146,6 +146,14 @@ export default function Login() {
                     I've already verified my email
                   </button>
                 </p>
+                <p className="text-sm mt-2">
+                  <Link 
+                    href="/force-verify"
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    Still having trouble? Try force verification
+                  </Link>
+                </p>
               </div>
             )}
 
