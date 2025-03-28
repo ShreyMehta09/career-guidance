@@ -55,4 +55,6 @@ async function connectDB() {
   }
 }
 
+// Check the existing MongoDB configuration
+
 export default connectDB; 

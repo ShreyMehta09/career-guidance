@@ -5,7 +5,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'counselor';
+  role: 'student' | 'teacher';
+  isVerified: boolean;
 }
 
 // Auth state management
@@ -14,10 +15,23 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user on component mount
+    // Clear any potential cached user data that might have incorrect verification status
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        
+        // Only set user if they are verified or we're clearing all the cache later
+        if (parsedUser.isVerified) {
+          setUser(parsedUser);
+        } else {
+          console.log('Stored user is not verified, clearing cache');
+          localStorage.removeItem('user');
+        }
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
@@ -35,12 +49,21 @@ export function useAuth() {
       const data = await response.json();
       
       if (!response.ok) {
+        if (data.needsVerification) {
+          throw new Error('Please verify your email before logging in. Check your inbox for the verification link.');
+        }
         throw new Error(data.error || 'Login failed');
       }
       
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
-      return data.user;
+      // Only store verified users
+      if (data.user.isVerified) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        return data.user;
+      } else {
+        console.warn('API returned unverified user, should not happen');
+        throw new Error('Please verify your email before logging in.');
+      }
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -54,14 +77,14 @@ export function useAuth() {
     setUser(null);
   };
 
-  const register = async (name: string, email: string, password: string): Promise<User> => {
+  const register = async (name: string, email: string, password: string, role: string = 'student'): Promise<User> => {
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }),
       });
       
       const data = await response.json();
@@ -70,8 +93,12 @@ export function useAuth() {
         throw new Error(data.error || 'Registration failed');
       }
       
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
+      // Don't store unverified users
+      if (data.user.isVerified) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+      }
+      
       return data.user;
     } catch (error) {
       if (error instanceof Error) {
