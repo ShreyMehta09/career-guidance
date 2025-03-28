@@ -5,8 +5,9 @@ import { use } from "react";
 // Get a single course by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } } // Change `{ params }` to `context`
+  context: { params: { id: string } }// Change `{ params }` to `context`
 ) {
+  const { id } = context.params;
   try {
     // Connect to MongoDB
     try {
@@ -19,7 +20,7 @@ export async function GET(
     }
     
     // Fetch course
-    const course = await Course.findById(params.id).populate('createdBy', 'name email');
+    const course = await Course.findById(id).populate('createdBy', 'name email');
       
     if (!course) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 });
@@ -52,8 +53,9 @@ export async function GET(
 // Update a course
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
   try {
     const { name, courseId, points, description, modules } = await request.json();
 
@@ -75,7 +77,7 @@ export async function PUT(
     }
     
     // Find the course
-    const course = await Course.findById(params.id);
+    const course = await Course.findById(id);
     
     if (!course) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 });
@@ -84,7 +86,7 @@ export async function PUT(
     // Check if updating courseId would conflict with an existing course
     if (courseId !== course.courseId) {
       const existingCourse = await Course.findOne({ courseId });
-      if (existingCourse && existingCourse._id.toString() !== params.id) {
+      if (existingCourse && existingCourse._id.toString() !== id) {
         return NextResponse.json({ 
           error: 'A course with this ID already exists' 
         }, { status: 409 });
