@@ -5,9 +5,9 @@ import { use } from "react";
 // Get a single course by ID
 export async function GET(
   request: Request,
-  context: { params: { id: string } }// Change `{ params }` to `context`
+  context: { params: Record<string, string> }// Change `{ params }` to `context`
 ) {
-  const { id } = context.params;
+  const id  = context.params.id;
   try {
     // Connect to MongoDB
     try {
@@ -53,9 +53,9 @@ export async function GET(
 // Update a course
 export async function PUT(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Record<string, string> }
 ) {
-  const { id } = context.params;
+  const id  = context.params.id;
   try {
     const { name, courseId, points, description, modules } = await request.json();
 
