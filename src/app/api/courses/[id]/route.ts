@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import Course from '@/models/Course';
-
+import { use } from "react";
 // Get a single course by ID
 export async function GET(
   request: Request,
-  context: { params: { id: string } } // Change `{ params }` to `context`
+  { params }: { params: { id: string } } // Change `{ params }` to `context`
 ) {
-  const { params } = await Promise.resolve(context); // Destructure params explicitly
   try {
     // Connect to MongoDB
     try {
