@@ -84,12 +84,8 @@ export async function POST(request: Request) {
       id: user._id,
       name: user.name,
       email: user.email,
-<<<<<<< HEAD
       role: user.role,
       isVerified: true // Force isVerified to true if we got here
-=======
-      role: user.role
->>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
     };
     
     return NextResponse.json({ 
