@@ -7,7 +7,6 @@ import { updateUserVerificationFields } from '@/utils/directMongoDB';
 export async function POST(request: Request) {
   try {
     const { name, email, password, role } = await request.json();
-<<<<<<< HEAD
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -15,8 +14,6 @@ export async function POST(request: Request) {
         error: 'Name, email, and password are required' 
       }, { status: 400 });
     }
-=======
->>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
 
     // Connect to MongoDB
     try {
@@ -48,12 +45,8 @@ export async function POST(request: Request) {
       name,
       email,
       password,
-<<<<<<< HEAD
       role: role || 'student',
       isVerified: false
-=======
-      role: role || 'student' // Default to student if no role provided
->>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
     });
     
     try {
@@ -103,12 +96,8 @@ export async function POST(request: Request) {
       id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-<<<<<<< HEAD
       role: newUser.role,
       isVerified: false
-=======
-      role: newUser.role
->>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
     };
     
     return NextResponse.json({ 

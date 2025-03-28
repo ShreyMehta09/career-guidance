@@ -6,10 +6,7 @@ export interface User {
   name: string;
   email: string;
   role: 'student' | 'teacher';
-<<<<<<< HEAD
   isVerified: boolean;
-=======
->>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
 }
 
 // Auth state management
