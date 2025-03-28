@@ -6,9 +6,12 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
+<<<<<<< HEAD
   isVerified: boolean;
   verificationToken: string;
   verificationTokenExpires: Date;
+=======
+>>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -34,6 +37,7 @@ const UserSchema: Schema = new Schema({
     enum: ['teacher', 'student'],
     default: 'student',
     required: true
+<<<<<<< HEAD
   },
   isVerified: {
     type: Boolean,
@@ -47,6 +51,8 @@ const UserSchema: Schema = new Schema({
   verificationTokenExpires: {
     type: Date,
     sparse: true
+=======
+>>>>>>> 7e271183fdd9ff2c5f737295e0204cb5a6dddda8
   }
 }, { timestamps: true });
 
