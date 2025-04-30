@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import Course from '@/models/Course';
 import { use } from "react";
+
 // Get a single course by ID
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   const id = params.id;
   try {
     // Connect to MongoDB
@@ -54,7 +55,7 @@ export async function GET(
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   const id = params.id;
   try {
     const { name, courseId, points, description, modules } = await request.json();
