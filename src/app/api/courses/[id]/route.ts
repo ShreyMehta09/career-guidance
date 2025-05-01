@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import Course from '@/models/Course';
-
 // Get a single course by ID
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+  request: Request,
+  { params }: { params: { [key: string]: string | string[] } }
+) {
   const id = params.id;
   try {
     // Connect to MongoDB
@@ -52,7 +51,7 @@ export async function GET(
 
 // Update a course
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const id = params.id;
@@ -134,4 +133,4 @@ export async function PUT(
       error: 'Error updating course. Please try again later.' 
     }, { status: 500 });
   }
-}
+} 
