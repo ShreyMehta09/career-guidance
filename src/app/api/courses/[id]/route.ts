@@ -2,16 +2,10 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import Course from '@/models/Course';
 
-type RouteParams = {
-  params: {
-    id: string;
-  };
-};
-
 // Get a single course by ID
 export async function GET(
   request: Request,
-  { params }: RouteParams
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const id = params.id;
   try {
@@ -59,7 +53,7 @@ export async function GET(
 // Update a course
 export async function PUT(
   request: Request,
-  { params }: RouteParams
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const id = params.id;
   try {
