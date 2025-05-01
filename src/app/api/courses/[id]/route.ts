@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import connectDB from '@/utils/mongodb';
 import Course from '@/models/Course';
 // Get a single course by ID
 export async function GET(
-  request: Request,
-  { params }: { params: { [key: string]: string | string[] } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   const id = params.id;
   try {
